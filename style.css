@@ -1,33 +1,34 @@
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-
 body {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
-    background: linear-gradient(to right, #009246 33.3%, #ffffff 33.3%, #ffffff 66.6%, #ce2b37 66.6%);
+    background: linear-gradient(to right, #009246, #ffffff, #ce2b37);
     font-family: 'Press Start 2P', sans-serif;
     color: #333;
 }
 
 .container {
     text-align: center;
-    position: relative; /* Posizione relativa per i figli assoluti */
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 10px;
 }
 
 canvas {
     border: 2px solid #f9f9f9;
     background-color: #212121;
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    touch-action: none; /* Impedisce al canvas di scrollarsi su mobile */
 }
 
-#score {
-    font-size: 16px;
+.score {
+    font-size: 24px;
     margin-top: 10px;
 }
 
-#restartButton, #pauseButton {
+.button {
     margin-top: 20px;
     padding: 10px 20px;
     font-size: 18px;
@@ -39,17 +40,13 @@ canvas {
     transition: background-color 0.3s;
 }
 
-#restartButton:hover, #pauseButton:hover {
+.button:hover {
     background-color: #45a049;
 }
 
-#gameOverMessage {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 20px;
-    color: #ce2b37; /* Colore rosso per il testo del game over */
-    display: none; /* Nascondi il messaggio di game over inizialmente */
-    z-index: 1; /* Assicura che sia sopra il punteggio */
+.game-over {
+    font-size: 24px;
+    margin-top: 20px;
+    color: #ce2b37;
+    display: none;
 }
