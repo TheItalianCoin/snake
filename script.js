@@ -7,7 +7,6 @@ const musicButton = document.getElementById('musicButton');
 const soundButton = document.getElementById('soundButton');
 const gameOverMessage = document.getElementById('gameOverMessage');
 
-// Elementi audio
 const backgroundMusic = document.getElementById('backgroundMusic');
 const eatSound = document.getElementById('eatSound');
 
@@ -32,16 +31,16 @@ let apple = {
 };
 
 let gamePaused = false;
-let animationId = null; // Variabile per memorizzare l'ID dell'animazione corrente
-let musicOn = true; // Imposta la musica come attiva all'avvio
-let soundOn = true; // Imposta i suoni come attivi all'avvio
+let animationId = null;
+let musicOn = true;
+let soundOn = true;
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
 function resetGame() {
-    cancelAnimationFrame(animationId); // Fermare l'animazione corrente se presente
+    cancelAnimationFrame(animationId);
 
     snake.x = grid * 5;
     snake.y = grid * 5;
@@ -55,48 +54,36 @@ function resetGame() {
     level = 1;
     speed = 8;
     updateScore();
-    
-    // Nascondere il messaggio di game over
+
     gameOverMessage.style.display = 'none';
 
-    // Mostrare il pulsante di pausa e avviare il game loop se non è in pausa
     if (!gamePaused) {
         pauseButton.style.display = 'inline-block';
         animationId = requestAnimationFrame(gameLoop);
     }
 
-    // Aggiorna il testo dei pulsanti in base allo stato corrente della musica e dei suoni
-    updateMusicButton();
-    updateSoundButton();
-    
-    // Avvia la musica di sottofondo se era attivata prima del reset
-    toggleBackgroundMusic(musicOn);
+    updateMusicButton(); // Aggiorna il testo del pulsante della musica
+    toggleBackgroundMusic(); // Avvia o ferma la musica in base allo stato attuale
+    updateSoundButton(); // Aggiorna il testo del pulsante degli effetti sonori
 }
 
 function toggleBackgroundMusic() {
-    musicOn = !musicOn; // Inverti lo stato della musica
-
     if (musicOn) {
         backgroundMusic.currentTime = 0;
         backgroundMusic.play();
     } else {
         backgroundMusic.pause();
     }
-
-    // Aggiorna il testo del pulsante della musica
-    updateMusicButton();
 }
 
 function toggleSound() {
-    soundOn = !soundOn; // Inverti lo stato degli effetti sonori
-
-    // Aggiorna il testo del pulsante degli effetti sonori
+    soundOn = !soundOn;
     updateSoundButton();
 }
 
 function playEatSound() {
     if (soundOn) {
-        eatSound.currentTime = 0; // Reimposta il suono all'inizio per la riproduzione immediata
+        eatSound.currentTime = 0;
         eatSound.play();
     }
 }
@@ -152,14 +139,14 @@ function gameLoop() {
 
     drawApple(apple.x, apple.y);
 
-    ctx.fillStyle = '#009246'; // Colore del serpente
+    ctx.fillStyle = '#009246';
     snake.cells.forEach(function (cell, index) {
         drawSnakePart(cell.x, cell.y);
 
         if (cell.x === apple.x && cell.y === apple.y) {
             snake.maxCells++;
             score++;
-            playEatSound(); // Riproduci il suono quando il serpente mangia la mela
+            playEatSound();
             apple.x = getRandomInt(0, Math.floor(canvas.width / grid)) * grid;
             apple.y = getRandomInt(0, Math.floor(canvas.height / grid)) * grid;
             if (score % 5 === 0) {
@@ -184,7 +171,6 @@ function showGameOver() {
     gameOverMessage.style.display = 'block';
 }
 
-// Gestione degli eventi touch per dispositivi mobili
 let touchStartX = 0;
 let touchStartY = 0;
 
@@ -200,9 +186,7 @@ canvas.addEventListener('touchmove', function(e) {
     const dx = touchEndX - touchStartX;
     const dy = touchEndY - touchStartY;
 
-    // Controllo della direzione del movimento del serpente
     if (Math.abs(dx) > Math.abs(dy)) {
-        // Movimento orizzontale
         if (dx > 0 && snake.dx === 0) {
             snake.dx = grid;
             snake.dy = 0;
@@ -211,7 +195,6 @@ canvas.addEventListener('touchmove', function(e) {
             snake.dy = 0;
         }
     } else {
-        // Movimento verticale
         if (dy > 0 && snake.dy === 0) {
             snake.dy = grid;
             snake.dx = 0;
@@ -221,7 +204,6 @@ canvas.addEventListener('touchmove', function(e) {
         }
     }
 
-    // Aggiornamento delle coordinate di inizio del tocco
     touchStartX = touchEndX;
     touchStartY = touchEndY;
 });
@@ -239,8 +221,8 @@ document.addEventListener('keydown', function (e) {
     } else if (e.key === 'ArrowDown' && snake.dy === 0) {
         snake.dy = grid;
         snake.dx = 0;
-    } else if (e.key === ' ') { // Spazio per mettere in pausa
-        e.preventDefault(); // Evita che lo spazio faccia scorrere la pagina
+    } else if (e.key === ' ') {
+        e.preventDefault();
         gamePaused = !gamePaused;
 
         if (gamePaused) {
@@ -263,20 +245,22 @@ pauseButton.addEventListener('click', function () {
     }
 });
 
-musicButton.addEventListener('click', toggleBackgroundMusic);
+musicButton.addEventListener('click', function () {
+    musicOn = !musicOn; // Inverti lo stato della musica
+    toggleBackgroundMusic(); // Avvia o ferma la musica in base allo stato attuale
+    updateMusicButton(); // Aggiorna il testo del pulsante della musica
+});
 
 soundButton.addEventListener('click', function () {
     toggleSound(); // Attiva o disattiva gli effetti sonori
 });
 
-// Funzione per aggiornare il testo del pulsante della musica
 function updateMusicButton() {
     musicButton.textContent = musicOn ? 'Music Off' : 'Music On';
 }
 
-// Funzione per aggiornare il testo del pulsante degli effetti sonori
 function updateSoundButton() {
     soundButton.textContent = soundOn ? 'Sound Off' : 'Sound On';
 }
 
-resetGame(); // Inizializza il gioco
+resetGame(); // Avvia il gioco all'avvio
