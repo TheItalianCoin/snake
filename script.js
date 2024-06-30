@@ -39,6 +39,7 @@ let yellowApple = {
 };
 
 let gamePaused = false;
+let gameOver = false;
 let animationId = null;
 let musicOn = true;
 let soundOn = true;
@@ -62,12 +63,16 @@ function resetGame() {
     level = 1;
     speed = 8;
     yellowApple.visible = false;
+    gamePaused = false;
+    gameOver = false;
+
     if (yellowApple.timer) {
         clearTimeout(yellowApple.timer);
     }
     updateScore();
 
     gameOverMessage.style.display = 'none';
+    pauseButton.disabled = false;
 
     if (!gamePaused) {
         pauseButton.style.display = 'inline-block';
@@ -144,9 +149,11 @@ function generateYellowApple() {
 }
 
 function gameLoop() {
-    animationId = requestAnimationFrame(gameLoop);
+    if (!gamePaused && !gameOver) {
+        animationId = requestAnimationFrame(gameLoop);
+    }
 
-    if (++count < speed || gamePaused) {
+    if (++count < speed) {
         return;
     }
 
@@ -220,8 +227,10 @@ function gameLoop() {
 }
 
 function showGameOver() {
+    gameOver = true;
     gameOverMessage.textContent = `Game Over Score: ${score}`;
     gameOverMessage.style.display = 'block';
+    pauseButton.disabled = true;
 }
 
 let touchStartX = 0;
@@ -275,26 +284,21 @@ document.addEventListener('keydown', function (e) {
         snake.dy = grid;
         snake.dx = 0;
     } else if (e.key === ' ') {
-        e.preventDefault();
-        gamePaused = !gamePaused;
-
-        if (gamePaused) {
-            cancelAnimationFrame(animationId);
-        } else {
-            animationId = requestAnimationFrame(gameLoop);
-        }
+        togglePause();
     }
 });
 
-restartButton.addEventListener('click', resetGame);
+restartButton.addEventListener('click', function () {
+    resetGame();
+});
 
 pauseButton.addEventListener('click', function () {
-    gamePaused = !gamePaused;
-
     if (gamePaused) {
-        cancelAnimationFrame(animationId);
-    } else {
+        gamePaused = false;
         animationId = requestAnimationFrame(gameLoop);
+    } else {
+        gamePaused = true;
+        cancelAnimationFrame(animationId);
     }
 });
 
