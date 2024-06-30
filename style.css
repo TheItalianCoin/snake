@@ -4,7 +4,7 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
-    background: linear-gradient(to right, #009246, #ffffff, #ce2b37);
+    background: linear-gradient(to right, #009246, #009246 33.33%, #ffffff 33.33%, #ffffff 66.67%, #ce2b37 66.67%, #ce2b37);
     font-family: 'Press Start 2P', sans-serif;
     color: #333;
 }
