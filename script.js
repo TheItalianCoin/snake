@@ -3,7 +3,12 @@ const ctx = canvas.getContext('2d');
 const scoreElement = document.getElementById('score');
 const restartButton = document.getElementById('restartButton');
 const pauseButton = document.getElementById('pauseButton');
+const musicButton = document.getElementById('musicButton'); // Riferimento al pulsante della musica
 const gameOverMessage = document.getElementById('gameOverMessage');
+
+// Elementi audio
+const backgroundMusic = document.getElementById('backgroundMusic');
+const eatSound = document.getElementById('eatSound');
 
 const grid = 20;
 let count = 0;
@@ -27,6 +32,7 @@ let apple = {
 
 let gamePaused = false;
 let animationId = null; // Variabile per memorizzare l'ID dell'animazione corrente
+let musicOn = true; // Imposta la musica come attiva all'avvio
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
@@ -51,9 +57,30 @@ function resetGame() {
     // Nascondere il messaggio di game over
     gameOverMessage.style.display = 'none';
 
-    // Mostrare il pulsante di pausa e avviare il game loop
-    pauseButton.style.display = 'inline-block';
-    animationId = requestAnimationFrame(gameLoop);
+    // Mostrare il pulsante di pausa e avviare il game loop se non è in pausa
+    if (!gamePaused) {
+        pauseButton.style.display = 'inline-block';
+        animationId = requestAnimationFrame(gameLoop);
+    }
+
+    // Avvia la musica di sottofondo se era attivata prima del reset
+    toggleBackgroundMusic(musicOn);
+}
+
+function toggleBackgroundMusic(play) {
+    if (play) {
+        if (backgroundMusic.paused) {
+            backgroundMusic.currentTime = 0;
+            backgroundMusic.play();
+        }
+    } else {
+        backgroundMusic.pause();
+    }
+}
+
+function playEatSound() {
+    eatSound.currentTime = 0; // Reimposta il suono all'inizio per la riproduzione immediata
+    eatSound.play();
 }
 
 function updateScore() {
@@ -114,6 +141,7 @@ function gameLoop() {
         if (cell.x === apple.x && cell.y === apple.y) {
             snake.maxCells++;
             score++;
+            playEatSound(); // Riproduci il suono quando il serpente mangia la mela
             apple.x = getRandomInt(0, Math.floor(canvas.width / grid)) * grid;
             apple.y = getRandomInt(0, Math.floor(canvas.height / grid)) * grid;
             if (score % 5 === 0) {
@@ -205,7 +233,10 @@ document.addEventListener('keydown', function (e) {
     }
 });
 
-restartButton.addEventListener('click', resetGame);
+restartButton.addEventListener('click', function() {
+    gamePaused = false; // Assicura che il gioco non sia in pausa prima del reset
+    resetGame();
+});
 
 pauseButton.addEventListener('click', function () {
     gamePaused = !gamePaused;
@@ -215,6 +246,12 @@ pauseButton.addEventListener('click', function () {
     } else {
         animationId = requestAnimationFrame(gameLoop);
     }
+});
+
+// Event listener per il pulsante della musica
+musicButton.addEventListener('click', function() {
+    musicOn = !musicOn; // Inverti lo stato della musica
+    toggleBackgroundMusic(musicOn); // Attiva o disattiva la musica in base allo stato
 });
 
 resetGame(); // Inizializza il gioco
