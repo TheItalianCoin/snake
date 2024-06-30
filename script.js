@@ -15,7 +15,7 @@ const grid = 20;
 let count = 0;
 let score = 0;
 let level = 1;
-let speed = 8;
+let speed = 6;
 
 let snake = {
     x: grid * 5,
@@ -45,6 +45,16 @@ let animationId = null;
 let musicOn = true;
 let soundOn = true;
 
+// Preload delle immagini
+const snakeImage = new Image();
+snakeImage.src = 'snake.png';
+
+const appleImage = new Image();
+appleImage.src = 'apple.png';
+
+const yellowAppleImage = new Image();
+yellowAppleImage.src = 'yellow_apple.png';
+
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
@@ -65,7 +75,7 @@ function resetGame() {
 
     score = 0;
     level = 1;
-    speed = 8;
+    speed = 6;
 
     yellowApple.visible = false;
     gamePaused = false;
@@ -122,24 +132,15 @@ function updateScore() {
 }
 
 function drawSnakePart(x, y) {
-    ctx.fillStyle = '#009246'; // Verde
-    ctx.fillRect(x, y, grid - 1, grid - 1);
-    ctx.strokeStyle = '#fff';
-    ctx.strokeRect(x, y, grid - 1, grid - 1);
+    ctx.drawImage(snakeImage, x, y, grid - 1, grid - 1);
 }
 
 function drawApple(x, y) {
-    ctx.fillStyle = '#f44336'; // Rosso
-    ctx.beginPath();
-    ctx.arc(x + grid / 2, y + grid / 2, grid / 2 - 2, 0, 2 * Math.PI);
-    ctx.fill();
+    ctx.drawImage(appleImage, x, y, grid, grid);
 }
 
 function drawYellowApple(x, y) {
-    ctx.fillStyle = '#FFEB3B'; // Giallo
-    ctx.beginPath();
-    ctx.arc(x + grid / 2, y + grid / 2, grid / 2 - 2, 0, 2 * Math.PI);
-    ctx.fill();
+    ctx.drawImage(yellowAppleImage, x, y, grid, grid);
 }
 
 function generateYellowApple() {
@@ -213,7 +214,7 @@ function gameLoop() {
 
             if (score % 5 === 0) {
                 level++;
-                speed = Math.max(speed - 1, 1);
+                speed = Math.max(speed * 0.9, 1);
                 generateYellowApple();
             }
             updateScore();
