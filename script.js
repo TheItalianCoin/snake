@@ -3,7 +3,8 @@ const ctx = canvas.getContext('2d');
 const scoreElement = document.getElementById('score');
 const restartButton = document.getElementById('restartButton');
 const pauseButton = document.getElementById('pauseButton');
-const musicButton = document.getElementById('musicButton'); // Riferimento al pulsante della musica
+const musicButton = document.getElementById('musicButton');
+const soundButton = document.getElementById('soundButton');
 const gameOverMessage = document.getElementById('gameOverMessage');
 
 // Elementi audio
@@ -33,6 +34,7 @@ let apple = {
 let gamePaused = false;
 let animationId = null; // Variabile per memorizzare l'ID dell'animazione corrente
 let musicOn = true; // Imposta la musica come attiva all'avvio
+let soundOn = true; // Imposta i suoni come attivi all'avvio
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
@@ -63,24 +65,40 @@ function resetGame() {
         animationId = requestAnimationFrame(gameLoop);
     }
 
+    // Aggiorna il testo dei pulsanti in base allo stato corrente della musica e dei suoni
+    updateMusicButton();
+    updateSoundButton();
+    
     // Avvia la musica di sottofondo se era attivata prima del reset
     toggleBackgroundMusic(musicOn);
 }
 
-function toggleBackgroundMusic(play) {
-    if (play) {
-        if (backgroundMusic.paused) {
-            backgroundMusic.currentTime = 0;
-            backgroundMusic.play();
-        }
+function toggleBackgroundMusic() {
+    musicOn = !musicOn; // Inverti lo stato della musica
+
+    if (musicOn) {
+        backgroundMusic.currentTime = 0;
+        backgroundMusic.play();
     } else {
         backgroundMusic.pause();
     }
+
+    // Aggiorna il testo del pulsante della musica
+    updateMusicButton();
+}
+
+function toggleSound() {
+    soundOn = !soundOn; // Inverti lo stato degli effetti sonori
+
+    // Aggiorna il testo del pulsante degli effetti sonori
+    updateSoundButton();
 }
 
 function playEatSound() {
-    eatSound.currentTime = 0; // Reimposta il suono all'inizio per la riproduzione immediata
-    eatSound.play();
+    if (soundOn) {
+        eatSound.currentTime = 0; // Reimposta il suono all'inizio per la riproduzione immediata
+        eatSound.play();
+    }
 }
 
 function updateScore() {
@@ -233,10 +251,7 @@ document.addEventListener('keydown', function (e) {
     }
 });
 
-restartButton.addEventListener('click', function() {
-    gamePaused = false; // Assicura che il gioco non sia in pausa prima del reset
-    resetGame();
-});
+restartButton.addEventListener('click', resetGame);
 
 pauseButton.addEventListener('click', function () {
     gamePaused = !gamePaused;
@@ -248,10 +263,20 @@ pauseButton.addEventListener('click', function () {
     }
 });
 
-// Event listener per il pulsante della musica
-musicButton.addEventListener('click', function() {
-    musicOn = !musicOn; // Inverti lo stato della musica
-    toggleBackgroundMusic(musicOn); // Attiva o disattiva la musica in base allo stato
+musicButton.addEventListener('click', toggleBackgroundMusic);
+
+soundButton.addEventListener('click', function () {
+    toggleSound(); // Attiva o disattiva gli effetti sonori
 });
+
+// Funzione per aggiornare il testo del pulsante della musica
+function updateMusicButton() {
+    musicButton.textContent = musicOn ? 'Music Off' : 'Music On';
+}
+
+// Funzione per aggiornare il testo del pulsante degli effetti sonori
+function updateSoundButton() {
+    soundButton.textContent = soundOn ? 'Sound Off' : 'Sound On';
+}
 
 resetGame(); // Inizializza il gioco

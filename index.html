@@ -14,18 +14,17 @@
         <div id="score" class="score">Score: 0 | Level: 1</div>
         <button id="restartButton" class="button">Restart</button>
         <button id="pauseButton" class="button" style="display: none;">Pause</button>
-        <button id="musicButton" class="button">Music On/Off</button>
+        <button id="musicButton" class="button">Music</button>
+        <button id="soundButton" class="button">Sound</button>
         <div id="gameOverMessage" class="game-over"></div>
 
         <!-- Elementi audio -->
-        <audio id="backgroundMusic" loop preload="auto">
+        <audio id="backgroundMusic" loop>
             <source src="background_music.mp3" type="audio/mpeg">
-            <!-- Aggiungi altri formati audio supportati se necessario -->
         </audio>
 
         <audio id="eatSound">
             <source src="eat_sound.mp3" type="audio/mpeg">
-            <!-- Aggiungi altri formati audio supportati se necessario -->
         </audio>
     </div>
     <script src="script.js"></script>
