@@ -9,7 +9,7 @@ const gameOverMessage = document.getElementById('gameOverMessage');
 
 const backgroundMusic = document.getElementById('backgroundMusic');
 const eatSound = document.getElementById('eatSound');
-const deathSound = document.getElementById('deathSound'); // Aggiunto il suono di morte
+const deathSound = document.getElementById('deathSound');
 
 const grid = 20;
 let count = 0;
@@ -23,7 +23,8 @@ let snake = {
     cells: [],
     maxCells: 4,
     dx: grid,
-    dy: 0
+    dy: 0,
+    nextDirection: null
 };
 
 let apple = {
@@ -57,11 +58,15 @@ function resetGame() {
     snake.maxCells = 4;
     snake.dx = grid;
     snake.dy = 0;
+    snake.nextDirection = null;
+
     apple.x = getRandomInt(0, Math.floor(canvas.width / grid)) * grid;
     apple.y = getRandomInt(0, Math.floor(canvas.height / grid)) * grid;
+
     score = 0;
     level = 1;
     speed = 8;
+
     yellowApple.visible = false;
     gamePaused = false;
     gameOver = false;
@@ -69,8 +74,8 @@ function resetGame() {
     if (yellowApple.timer) {
         clearTimeout(yellowApple.timer);
     }
-    updateScore();
 
+    updateScore();
     gameOverMessage.style.display = 'none';
     pauseButton.disabled = false;
 
@@ -160,9 +165,17 @@ function gameLoop() {
     count = 0;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Update snake direction if there's a pending nextDirection
+    if (snake.nextDirection) {
+        snake.dx = snake.nextDirection.dx;
+        snake.dy = snake.nextDirection.dy;
+        snake.nextDirection = null;
+    }
+
     snake.x += snake.dx;
     snake.y += snake.dy;
 
+    // Wrap snake around canvas edges
     if (snake.x < 0) {
         snake.x = canvas.width - grid;
     } else if (snake.x >= canvas.width) {
@@ -215,10 +228,11 @@ function gameLoop() {
             updateScore();
         }
 
+        // Check collision with itself
         for (let i = index + 1; i < snake.cells.length; i++) {
             if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
                 cancelAnimationFrame(animationId);
-                playDeathSound(); // Aggiunto suono di morte
+                playDeathSound();
                 showGameOver();
                 return;
             }
@@ -250,19 +264,15 @@ canvas.addEventListener('touchmove', function(e) {
 
     if (Math.abs(dx) > Math.abs(dy)) {
         if (dx > 0 && snake.dx === 0) {
-            snake.dx = grid;
-            snake.dy = 0;
+            snake.nextDirection = { dx: grid, dy: 0 };
         } else if (dx < 0 && snake.dx === 0) {
-            snake.dx = -grid;
-            snake.dy = 0;
+            snake.nextDirection = { dx: -grid, dy: 0 };
         }
     } else {
         if (dy > 0 && snake.dy === 0) {
-            snake.dy = grid;
-            snake.dx = 0;
+            snake.nextDirection = { dx: 0, dy: grid };
         } else if (dy < 0 && snake.dy === 0) {
-            snake.dy = -grid;
-            snake.dx = 0;
+            snake.nextDirection = { dx: 0, dy: -grid };
         }
     }
 
@@ -272,17 +282,13 @@ canvas.addEventListener('touchmove', function(e) {
 
 document.addEventListener('keydown', function (e) {
     if (e.key === 'ArrowLeft' && snake.dx === 0) {
-        snake.dx = -grid;
-        snake.dy = 0;
+        snake.nextDirection = { dx: -grid, dy: 0 };
     } else if (e.key === 'ArrowUp' && snake.dy === 0) {
-        snake.dy = -grid;
-        snake.dx = 0;
+        snake.nextDirection = { dx: 0, dy: -grid };
     } else if (e.key === 'ArrowRight' && snake.dx === 0) {
-        snake.dx = grid;
-        snake.dy = 0;
+        snake.nextDirection = { dx: grid, dy: 0 };
     } else if (e.key === 'ArrowDown' && snake.dy === 0) {
-        snake.dy = grid;
-        snake.dx = 0;
+        snake.nextDirection = { dx: 0, dy: grid };
     } else if (e.key === ' ') {
         togglePause();
     }
