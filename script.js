@@ -9,6 +9,7 @@ const gameOverMessage = document.getElementById('gameOverMessage');
 
 const backgroundMusic = document.getElementById('backgroundMusic');
 const eatSound = document.getElementById('eatSound');
+const deathSound = document.getElementById('deathSound'); // Aggiunto il suono di morte
 
 const grid = 20;
 let count = 0;
@@ -28,6 +29,13 @@ let snake = {
 let apple = {
     x: grid * 10,
     y: grid * 10
+};
+
+let yellowApple = {
+    x: -grid, // inizialmente fuori dallo schermo
+    y: -grid,
+    visible: false,
+    timer: null
 };
 
 let gamePaused = false;
@@ -53,6 +61,10 @@ function resetGame() {
     score = 0;
     level = 1;
     speed = 8;
+    yellowApple.visible = false;
+    if (yellowApple.timer) {
+        clearTimeout(yellowApple.timer);
+    }
     updateScore();
 
     gameOverMessage.style.display = 'none';
@@ -62,9 +74,9 @@ function resetGame() {
         animationId = requestAnimationFrame(gameLoop);
     }
 
-    updateMusicButton(); // Aggiorna il testo del pulsante della musica
-    toggleBackgroundMusic(); // Avvia o ferma la musica in base allo stato attuale
-    updateSoundButton(); // Aggiorna il testo del pulsante degli effetti sonori
+    updateMusicButton();
+    toggleBackgroundMusic();
+    updateSoundButton();
 }
 
 function toggleBackgroundMusic() {
@@ -88,6 +100,13 @@ function playEatSound() {
     }
 }
 
+function playDeathSound() {
+    if (soundOn) {
+        deathSound.currentTime = 0;
+        deathSound.play();
+    }
+}
+
 function updateScore() {
     scoreElement.textContent = `Score: ${score} | Level: ${level}`;
 }
@@ -104,6 +123,24 @@ function drawApple(x, y) {
     ctx.beginPath();
     ctx.arc(x + grid / 2, y + grid / 2, grid / 2 - 2, 0, 2 * Math.PI);
     ctx.fill();
+}
+
+function drawYellowApple(x, y) {
+    ctx.fillStyle = '#FFEB3B'; // Giallo
+    ctx.beginPath();
+    ctx.arc(x + grid / 2, y + grid / 2, grid / 2 - 2, 0, 2 * Math.PI);
+    ctx.fill();
+}
+
+function generateYellowApple() {
+    yellowApple.x = getRandomInt(0, Math.floor(canvas.width / grid)) * grid;
+    yellowApple.y = getRandomInt(0, Math.floor(canvas.height / grid)) * grid;
+    yellowApple.visible = true;
+    yellowApple.timer = setTimeout(function() {
+        yellowApple.visible = false;
+        yellowApple.x = -grid;
+        yellowApple.y = -grid;
+    }, 3000); // 3 secondi
 }
 
 function gameLoop() {
@@ -139,6 +176,10 @@ function gameLoop() {
 
     drawApple(apple.x, apple.y);
 
+    if (yellowApple.visible) {
+        drawYellowApple(yellowApple.x, yellowApple.y);
+    }
+
     ctx.fillStyle = '#009246';
     snake.cells.forEach(function (cell, index) {
         drawSnakePart(cell.x, cell.y);
@@ -149,16 +190,28 @@ function gameLoop() {
             playEatSound();
             apple.x = getRandomInt(0, Math.floor(canvas.width / grid)) * grid;
             apple.y = getRandomInt(0, Math.floor(canvas.height / grid)) * grid;
+
             if (score % 5 === 0) {
                 level++;
                 speed = Math.max(speed - 1, 1);
+                generateYellowApple();
             }
+            updateScore();
+        }
+
+        if (yellowApple.visible && cell.x === yellowApple.x && cell.y === yellowApple.y) {
+            yellowApple.visible = false;
+            clearTimeout(yellowApple.timer);
+            snake.maxCells++;
+            score += 5;
+            playEatSound();
             updateScore();
         }
 
         for (let i = index + 1; i < snake.cells.length; i++) {
             if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
                 cancelAnimationFrame(animationId);
+                playDeathSound(); // Aggiunto suono di morte
                 showGameOver();
                 return;
             }
@@ -246,21 +299,19 @@ pauseButton.addEventListener('click', function () {
 });
 
 musicButton.addEventListener('click', function () {
-    musicOn = !musicOn; // Inverti lo stato della musica
-    toggleBackgroundMusic(); // Avvia o ferma la musica in base allo stato attuale
-    updateMusicButton(); // Aggiorna il testo del pulsante della musica
+    musicOn = !musicOn;
+    updateMusicButton();
+    toggleBackgroundMusic();
 });
 
-soundButton.addEventListener('click', function () {
-    toggleSound(); // Attiva o disattiva gli effetti sonori
-});
+soundButton.addEventListener('click', toggleSound);
 
 function updateMusicButton() {
-    musicButton.textContent = musicOn ? 'Music Off' : 'Music On';
+    musicButton.textContent = musicOn ? 'Music: On' : 'Music: Off';
 }
 
 function updateSoundButton() {
-    soundButton.textContent = soundOn ? 'Sound Off' : 'Sound On';
+    soundButton.textContent = soundOn ? 'Sound: On' : 'Sound: Off';
 }
 
-resetGame(); // Avvia il gioco all'avvio
+resetGame();
