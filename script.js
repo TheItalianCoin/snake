@@ -47,13 +47,13 @@ let soundOn = true;
 
 // Preload delle immagini
 const snakeImage = new Image();
-snakeImage.src = 'snake.png';
+snakeImage.src = 'img/snake.png';
 
 const appleImage = new Image();
-appleImage.src = 'apple.png';
+appleImage.src = 'img/apple.png';
 
 const yellowAppleImage = new Image();
-yellowAppleImage.src = 'yellow_apple.png';
+yellowAppleImage.src = 'img/yellow_apple.png';
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
